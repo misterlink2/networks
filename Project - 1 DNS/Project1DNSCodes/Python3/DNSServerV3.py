@@ -44,39 +44,45 @@ def dnsQuery(connectionSock, srcAddress):
 		#match with the query sent from the client
 		#If match, use the entry in cache.
 	    #However, we may get multiple IP addresses in cache, so call dnsSelection to select one.
+	file =  open("DNS_mapping.txt","a+")
+	file.close()
 
-	hostname
-	ipadress
+
+	ipadress =""
 	with open("DNS_mapping.txt","r") as file:
 		if srcAddress in file.read():
 			hostname = srcAddress
-			dnsSelection(srcAddress)
+			ipaddress = dnsSelection(srcAddress)
+
 		else:
 			#If no lines match, query the local machine DNS lookup to get the IP resolution
-			hostname = gethostbyname(srcAddress)
+			ipaddress = gethostbyname(srcAddress)
+			print("ipaddress: ", ipaddress)
 			with open("DNS_mapping.txt","a+") as file:
-				#write the response in DNS_mapping.txt
+				#write the resposnse in DNS_mapping.txt
 				file.write("\n")
-				file.write(hostname)
+				file.write(ipaddress)
 				# file.close()
 
 	#print response to the terminal
-	print("hostname is: %s", hostname)
+	print("hostname is: ", ipaddress)
 
 	#send the response back to the client
-	connectionSock.sendall(hostname)
+	data = connectionSock.recv(1024)
+	connectionSock.sendall(data)
 	#Close the server socket.
-	socket.shutdown()
+	#serversocket.shutdown(SHUT_WR)
+	connectionSock.close()
 
 def dnsSelection(ipList):
 	next = 0
-	ip
-	with open("DNS_mapping.txt","a+") as file:
-	    for line in file:
-			if (ipList == line):
-				next = 1
-			if (next):
-				ip = file.readline()
+	ip = "3"
+	# with open("DNS_mapping.txt","a+") as file:
+	# 	for line in file:
+	# 		if ipList in file:
+	# 			return "2"
+	# 		else:
+	# 			return "1"
 	return ip
 	#checking the number of IP addresses in the cache
 	#if there is only one IP address, return the IP address
