@@ -4,7 +4,7 @@
 
 import sys, threading, os, random
 from socket import *
-import re
+import csv
 
 def main():
 	host = "localhost" # Hostname. It can be changed to anything you desire.
@@ -44,12 +44,23 @@ def dnsQuery(connectionSock, srcAddress):
 		#match with the query sent from the client
 		#If match, use the entry in cache.
 	    #However, we may get multiple IP addresses in cache, so call dnsSelection to select one.
-	file =  open("DNS_mapping.txt","a+")
+	file =  open("DNS_mapping.csv","a+")
 	file.close()
 
-
+	data = connectionSock.recv(1024).decode() # Receive from client ver.#py3 specific
+	print("Received:", data) # Print out the result.
 	ipadress =""
-	with open("DNS_mapping.txt","r") as file:
+
+	with open("DNS_mapping.csv","r") as f:
+	    reader = csv.DictReader(f)
+	    rows = [row for row in reader if row[0] != data]
+
+	for row in rows:
+	    print row
+
+
+
+	with open("DNS_mapping.csv","r") as file:
 		if srcAddress in file.read():
 			hostname = srcAddress
 			ipaddress = dnsSelection(srcAddress)
@@ -69,7 +80,10 @@ def dnsQuery(connectionSock, srcAddress):
 
 	#send the response back to the client
 	data = connectionSock.recv(1024)
-	connectionSock.sendall(data)
+	while data:
+		print("while data: ")
+		connectionSock.send(data)
+		data = connectionSock.recv(1024)
 	#Close the server socket.
 	#serversocket.shutdown(SHUT_WR)
 	connectionSock.close()
@@ -77,12 +91,16 @@ def dnsQuery(connectionSock, srcAddress):
 def dnsSelection(ipList):
 	next = 0
 	ip = "3"
-	# with open("DNS_mapping.txt","a+") as file:
-	# 	for line in file:
-	# 		if ipList in file:
-	# 			return "2"
+	with open("DNS_mapping.txt","a+") as file:
+		for line in file:
+			if ipList in line:
+				ip = line
+				print("line from txt: ", line)
+
+
 	# 		else:
 	# 			return "1"
+	print("ip: ", ip)
 	return ip
 	#checking the number of IP addresses in the cache
 	#if there is only one IP address, return the IP address
