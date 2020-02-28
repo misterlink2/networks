@@ -8,7 +8,7 @@ import csv
 
 def main():
 	host = "localhost" # Hostname. It can be changed to anything you desire.
-	port = 5001 # Port number.
+	port = 9889 # Port number.
 
 	#create a socket object, SOCK_STREAM for TCP
 	serversocket = socket(AF_INET, SOCK_STREAM)
@@ -36,76 +36,80 @@ def main():
 		server.start()
 
 def dnsQuery(connectionSock, srcAddress):
-	#check the DNS_mapping.txt to see if the host name exists
-	#set local file cache to predetermined file.
-    #create file if it doesn't exist
-			# file.close()
-		#if it does exist, read the file line by line to look for a
-		#match with the query sent from the client
-		#If match, use the entry in cache.
-	    #However, we may get multiple IP addresses in cache, so call dnsSelection to select one.
+
 	file =  open("DNS_mapping.csv","a+")
 	file.close()
+	log = open("dns-server-log.csv","a+")
+	log.close()
 
-	data = connectionSock.recv(1024).decode() # Receive from client ver.#py3 specific
+	data1 = connectionSock.recv(1024)
+	data = data1.decode() # Receive from client ver.#py3 specific
 	print("Received:", data) # Print out the result.
-	ipadress =""
+	ipaddress =""
+	newstr = ""
 
-	with open("DNS_mapping.csv","r") as f:
-	    reader = csv.DictReader(f)
-	    rows = [row for row in reader if row[0] != data]
-
-	for row in rows:
-	    print row
-
-
-
-	with open("DNS_mapping.csv","r") as file:
-		if srcAddress in file.read():
-			hostname = srcAddress
-			ipaddress = dnsSelection(srcAddress)
+	with open("DNS_mapping.csv","r+") as file:
+		if data in file.read():
+			print("srcAddress in file")
+			new = dnsSelection(data)
+			newstr = listToString(new)
 
 		else:
-			#If no lines match, query the local machine DNS lookup to get the IP resolution
-			ipaddress = gethostbyname(srcAddress)
-			print("ipaddress: ", ipaddress)
-			with open("DNS_mapping.txt","a+") as file:
-				#write the resposnse in DNS_mapping.txt
-				file.write("\n")
-				file.write(ipaddress)
-				# file.close()
+			print("srcAddress not in file")
+			try:
+				ipaddress = gethostbyname(data)
+			except Exception as e:
+				ipaddress = "Could not resolve hostname"
+			print("gethostbyname: ", ipaddress)
+			log = open("dns-server-log.csv","a+")
+			log.write(data)
+			log.write(",")
+			log.write(ipaddress)
+			log.write("\n")
+			log.close()
+			file.write(data)
+			file.write(",")
+			file.write(ipaddress)
+			file.write("\n")
+			newstr = data +  ": " + ipaddress
 
-	#print response to the terminal
-	print("hostname is: ", ipaddress)
 
-	#send the response back to the client
-	data = connectionSock.recv(1024)
-	while data:
-		print("while data: ")
-		connectionSock.send(data)
-		data = connectionSock.recv(1024)
+	newerstr = "Source:" + newstr
+	newerstr = newerstr.encode()
+
+	#data = connectionSock.recv(1024)
+	#serversocket.send("response	")
+	print("while data: ")
+	connectionSock.sendall(newerstr)
+	#data = connectionSock.recv(1024)
 	#Close the server socket.
 	#serversocket.shutdown(SHUT_WR)
 	connectionSock.close()
 
 def dnsSelection(ipList):
-	next = 0
-	ip = "3"
-	with open("DNS_mapping.txt","a+") as file:
-		for line in file:
-			if ipList in line:
-				ip = line
-				print("line from txt: ", line)
-
-
-	# 		else:
-	# 			return "1"
-	print("ip: ", ip)
+	ip = ""
+	with open("DNS_mapping.csv","rt") as f:
+		reader = csv.reader(f, delimiter=',') # good point by @paco
+		for row in reader:
+			for field in row:
+				if field == ipList:
+					ip = row
+					return row
+				print("cell: ", field)
+				print("row: ", row)
+	print("out of loop ")
 	return ip
-	#checking the number of IP addresses in the cache
-	#if there is only one IP address, return the IP address
-	#if there are multiple IP addresses, select one and return.
-	##bonus project: return the IP address according to the Ping value for better performance (lower latency)
+
+def listToString(s):
+
+    # initialize an empty string
+    str1 = ""
+
+    # traverse in the string
+    str1 = s[0] + ": " + s[1]
+
+    # return string
+    return str1
 
 def monitorQuit():
 	while 1:
