@@ -32,7 +32,6 @@ def main():
 	print("Server is listening...")
 
 	while 1:
-
 		#blocked until a remote machine connects to the local port 9889
 		connectionSock, addr = serversocket.accept()
 		server = threading.Thread(target=dnsQuery, args=[connectionSock, addr[0]])
@@ -51,19 +50,19 @@ def dnsQuery(connectionSock, srcAddress):
 	#Receive the input from the client and convert it to socket byte message
 	data1 = connectionSock.recv(1024)
 	data = data1.decode()
-
 	ipaddress =""
 	newstr = ""
+	newerstr = ""
 
 
 	with open("DNS_mapping.csv","r+") as file, open("dns-server-log.csv","a+") as log:
 		if data in file.read():
-			print("host in cache")
-			print("new")
+			print("hostname in cache")
 			new = dnsSelection(data)
-			print("new")
-			newstr = listToString(new)
-			newerstr = "Cache:" + newstr
+			#we need to make sure we still have a connection
+			if(new != ""):
+				newstr = listToString(new)
+				newerstr = "Cache:" + newstr
 
 			#open the cache and if the request exists return it
 
@@ -91,11 +90,11 @@ def dnsQuery(connectionSock, srcAddress):
 	#put the formatted response into byte messgae
 	newerstr = newerstr.encode()
 	#and return response to client
+	#if we dont have a connect we wait for a new one
 	try:
 		connectionSock.sendall(newerstr)
 	except socket.error:
-    	connectionSock, addr = serversocket.accept()
-
+		connectionSock, addr = serversocket.accept()
 	connectionSock.close()
 
 def dnsSelection(ipList):
