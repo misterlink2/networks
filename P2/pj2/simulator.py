@@ -2,6 +2,7 @@ from pj2.msg import *
 from pj2.event_list import *
 from pj2.event import *
 
+import pdb 
 import random
 import copy
 
@@ -10,9 +11,9 @@ class simulator:
     def __init__(self):
         # you may want to change the following parameters to adjust the characteristics of the communication channels
         self.lossprob = 0.3  # probability that a packet is dropped
-        self.corruptprob = 0.2  # probability that one bit is packet is flipped
+        self.corruptprob = 0  # probability that one bit is packet is flipped
         self.Lambda = 1000  # arrival rate of messages from layer 5
-        self.nsimmax = 20  # number of msgs to generate, then stop
+        self.nsimmax = 10  # number of msgs to generate, then stop
         self.TRACE = 0  # for your debugging
 
 
@@ -36,6 +37,7 @@ class simulator:
     def run(self):
         while (1):
             env = self.envlist.remove_head()
+            #pdb.set_trace() 
             if env == None:
                 print("simulation end!")
                 return
@@ -54,22 +56,32 @@ class simulator:
                 self.nsim = self.nsim + 1
                 if env.eventity == "A":
                     from pj2.A import a
+                    #print("A output")
+                    #pdb.set_trace()
                     a.A_output(m)
                 else:
-                    from pj2.A import b
+                    from pj2.A import b 
+                    #print("B output")
+                    #pdb.set_trace()
                     b.B_output(m)
 
             elif env.evtype == "FROM_LAYER3":
                 pkt2give = env.pkt
                 if env.eventity == "A":
                     from pj2.A import a
+                    #print("A input")
+                    #pdb.set_trace() 
                     a.A_input(pkt2give)
                 else:
                     from pj2.B import b
+                    #print("B input")
+                    #pdb.set_trace()
                     b.B_input(pkt2give)
 
             elif env.evtype == "TIMER_INTERRUPT":
                 if env.eventity == "A":
+                    print("A Handle Timer called")
+                   # pdb.set_trace()
                     a.A_handle_timer()
                 else:
                     b.B_handle_timer()
@@ -107,7 +119,6 @@ def to_layer_three(AorB, pkt):
 # do not modify this
 def to_layer_five(AorB, data):
     print("data recieved：{}".format(data))
-    print("from",AorB)
 
 
 sim = simulator()
