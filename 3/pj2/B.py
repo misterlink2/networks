@@ -4,7 +4,7 @@ from pj2.packet import send_ack
 class B:
     def __init__(self):
         # TODO: initialization of the state of B
-        # self.seq
+        self.seq = 0
         # ...
         return
 
@@ -12,7 +12,13 @@ class B:
         # TODO: process the packet recieved from the layer 3
         # verify checksum
         # send ACK
-        to_layer_five("B", pkt.payload.data);
+        if (pkt.seqnum == self.seq):
+            self.seq +=1
+            send_ack("B",self.seq)
+            to_layer_five("B", pkt.payload.data);
+        else:
+            #send_ack("B",-1)
+            print("a->b pkt.seq",pkt.seqnum,"B.seq",self.seq)
         return
 
     def B_output(self, m):
