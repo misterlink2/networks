@@ -35,7 +35,7 @@ class A:
             self.pkt = pkt
         else:
             print("waiting on ack")
-        evl.start_timer("A",300)
+        evl.start_timer("A",30)
         self.state = "WAIT_ACK"
         to_layer_three("A", self.pkt)
 
