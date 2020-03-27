@@ -19,6 +19,17 @@ class A:
         # TODO: recive data from the other side
         # process the ACK, NACK from B
         print("A INPUT")
+        print("checksum: ", pkt.get_checksum())
+        if(pkt.acknum == -20):
+            #self.state = "WAIT_LAYER5"
+            #try:
+                #evl.remove_timer()
+            #except AttributeError:
+               # print("caught error")
+            print("received NACK*")    
+            pass
+
+
         if (pkt.acknum == (self.seq+1) or pkt.acknum == -1):
             self.seq+=1
             self.state = "WAIT_LAYER5"
@@ -26,8 +37,6 @@ class A:
                 evl.remove_timer()
             except AttributeError:
                 print("caught error")
-        #elif (pkt.acknum == -1):
-            #self.seq+=1
 
         print("pkt.ack",pkt.acknum,"A.seq",self.seq)
         return
@@ -47,7 +56,9 @@ class A:
         else:
             print("waiting on ack")
         print("sending pkt ",self.pkt.payload.data[0])
-        print("self.seq: ",self.seq)
+        #print("self.seq: ",self.seq)
+        print("checksum: ", self.pkt.get_checksum())
+        sim.ncorrupt = self.pkt.get_checksum()
         evl.start_timer("A",self.estimated_rtt)
         self.state = "WAIT_ACK"
         to_layer_three("A", self.pkt)
@@ -60,6 +71,7 @@ class A:
         print("msg: ",ch)
         print("resending pkt ",self.pkt.payload.data[0])
         print("self.seq: ",self.seq)
+        print("checksum: ", self.pkt.get_checksum())
         to_layer_three("A",self.pkt)
         # TODO: handler for time interrupt
         # resend the packet as needed

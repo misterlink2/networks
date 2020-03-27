@@ -1,4 +1,4 @@
-from pj2.simulator import to_layer_five
+from pj2.simulator import to_layer_five, sim
 from pj2.packet import send_ack
 from pj2.event_list import evl
 
@@ -14,8 +14,19 @@ class B:
         # verify checksum
         # send ACK
         print("B INPUT")
-        print("pkt.seq",pkt.seqnum,"B.seq",self.seq)
-        if (pkt.seqnum == self.seq):
+        #print("pkt.seq",pkt.seqnum,"B.seq",self.seq)
+        #print("checksum:", pkt.get_checksum())
+        #if (pkt.get_checksum() !=sim.ncorrupt):
+            #print("CORRUPT")
+            #print("pkt.checksum: ",pkt.get_checksum(),"A checksum: ",sim.ncorrupt)
+            #dif = pkt.get_checksum()-sim.ncorrupt
+            #print("difference: ", dif)
+
+        if (pkt.payload.data[-1]=='*'):
+            print("corrupt, sending NACK*")
+            send_ack("B",-20)
+
+        elif (pkt.seqnum == self.seq):
             self.seq +=1
             send_ack("B",self.seq)
             to_layer_five("B", pkt.payload.data);
