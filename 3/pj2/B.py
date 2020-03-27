@@ -1,5 +1,6 @@
 from pj2.simulator import to_layer_five
 from pj2.packet import send_ack
+from pj2.event_list import evl
 
 class B:
     def __init__(self):
@@ -18,14 +19,18 @@ class B:
             self.seq +=1
             send_ack("B",self.seq)
             to_layer_five("B", pkt.payload.data);
-        #else:
-            #send_ack("B",-1)
+            #evl.remove_timer()
+            #evl.start_timer("B",30)
+        else:
+            print("Send NACK")
+            send_ack("B",-1)
         return
 
     def B_output(self, m):
         return
 
     def B_handle_timer(self):
+        print("B TIMER")
         return
 
 
