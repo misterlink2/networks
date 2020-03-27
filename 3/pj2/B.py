@@ -12,13 +12,14 @@ class B:
         # TODO: process the packet recieved from the layer 3
         # verify checksum
         # send ACK
+        print("B INPUT")
+        print("pkt.seq",pkt.seqnum,"B.seq",self.seq)
         if (pkt.seqnum == self.seq):
             self.seq +=1
             send_ack("B",self.seq)
             to_layer_five("B", pkt.payload.data);
-        else:
+        #else:
             #send_ack("B",-1)
-            print("a->b pkt.seq",pkt.seqnum,"B.seq",self.seq)
         return
 
     def B_output(self, m):
