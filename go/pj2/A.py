@@ -16,25 +16,29 @@ class A:
         # You can set the estimated_rtt to be 30, which is used as a parameter when you call start_timer
     
     def A_output(self, m):
-        print("-----------------")
-        print("A OUTPUT")
+        #print("-----------------")
+        #print("A OUTPUT")
         pkt = packet(seqnum = self.seq,payload = m)
-        print("pkt created: ", pkt.payload.data[0],pkt.seqnum)
+        #print("pkt created: ", pkt.payload.data[0],pkt.seqnum)
         if(self.buf.isfull()==False):
             self.buf.push(pkt)
             to_layer_three("A",pkt)
             self.seq+=1
-            print("sending packet")
+            #print("sending packet")
         else:
-            print("buffer full")
-            for i in self.buf.read_all():
-                self.buf.pop()
+            #print("buffer full")
+            #print("seq:",self.seq)
+            #print("received: ",self.received)
+            #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            self.clean_buf()
+            #for i in self.buf.read_all():
+                #self.buf.pop()
             self.buf.push(pkt)
                 #to_layer_three("A",i)
 
         #to_layer_three("A",pkt)
         evl.start_timer("A",self.estimated_rtt)
-        self.buf_read()
+        #self.buf_read()
 
         # go back n, A_output
         # If the buffer is full, just drop the packet
@@ -43,31 +47,34 @@ class A:
         # Set the timer using "evl.start_timer(entity, time)", and the time should be set to estimated_rtt. Make sure that there is only one timer started in the event list
 
     def A_input(self, pkt):
-        print("A INPUT")
-        print("received ack:",pkt.acknum)
-        print("self.received:",self.received)
+        #print("A INPUT")
+        #print("received ack:",pkt.acknum)
+        #print("self.received:",self.received)
         #if(pkt.acknum ==  -1):
             #self.seq+=1
             #print("NACK received, self.seq+1 =",self.seq)
 
         if (pkt.acknum == self.received):
-            self.buf_read()
-            print("buf.pop")
+            #self.buf_read()
+            #print("buf.pop")
             self.buf.pop()
-            self.buf_read()
+            #self.buf_read()
             self.received+=1
-            print("A.received :",self.received)
+            #print("A.received :",self.received)
+            self.clean_buf()
             try:
+                #print("removing timer")
                 evl.remove_timer()
             except AttributeError:
-               print("caught error")
+                pass
+               #print("caught error")
         elif (pkt.acknum == -20):
-            self.buf_read()
-            print("buf.pop")
+            #self.buf_read()
+            #print("buf.pop")
             self.buf.pop()
         else:
-            print("wrong ack, resending buffer")
-            self.buf_read()
+            #print("wrong ack, resending buffer")
+            #self.buf_read()
             for i in self.buf.read_all():
                 to_layer_three("A",i)
             return
@@ -78,12 +85,20 @@ class A:
 
 
     def A_handle_timer(self):
-        print("-----------------")
-        print("TIMER")
-        print("resending buffer:")
-        self.buf_read()
+        #print("-----------------")
+        #print("TIMER")
+        #print("resending buffer:")
+        #self.buf_read()
         for i in self.buf.read_all():
             to_layer_three("A",i)
+
+    def clean_buf(self):
+        #print("BUFFER:")
+        #print("????????")
+        for i in self.buf.read_all():
+            if i.seqnum < self.received:
+                self.buf.pop()
+        #print("????????")
 
     def buf_read(self):
         print("BUFFER:")

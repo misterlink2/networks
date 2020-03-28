@@ -13,10 +13,10 @@ class B:
         # TODO: process the packet recieved from the layer 3
         # verify checksum
         # send ACK
-        print("B INPUT")
-        print("pkt.seq",pkt.seqnum,"pkt.data",pkt.payload.data[0])
-        print("B seq",self.seq)
-        print("checksum:", pkt.get_checksum())
+        #print("B INPUT")
+        #print("pkt.seq",pkt.seqnum,"pkt.data",pkt.payload.data[0])
+        #print("B seq",self.seq)
+        #print("checksum:", pkt.get_checksum())
         #if (pkt.get_checksum() !=sim.ncorrupt):
             #print("CORRUPT")
             #print("pkt.checksum: ",pkt.get_checksum(),"A checksum: ",sim.ncorrupt)
@@ -24,22 +24,22 @@ class B:
             #print("difference: ", dif)
 
         if (pkt.payload.data[-1]=='*'):
-            print("corrupt, sending NACK*")
+            #print("corrupt, sending NACK*")
             send_ack("B",-1)
         elif (pkt.seqnum < self.seq):
-            print("pkt already displayed")
+            #print("pkt already displayed")
             send_ack("B",-20)
 
         elif (pkt.seqnum == self.seq):
-            print("correct seq")
-            print("sending ack:",self.seq)
+            #print("correct seq")
+            #print("sending ack:",self.seq)
             send_ack("B",pkt.seqnum)
             self.seq +=1
             to_layer_five("B", pkt.payload.data);
             #evl.remove_timer()
             #evl.start_timer("B",30)
         else:
-            print("Send NACK")
+            #print("Send NACK")
             send_ack("B",-1)
         return
 
