@@ -1,0 +1,15 @@
+Austin Basala, csci4211, 4-21-2020
+
+ethernet-algorithm
+
+I went for a simple self learning algorithm, where the switch floods the hosts when it does not know a destination mac. It can map macs to source or destination locations, as an entry in the flow table from switch1 should be saved whether it is coming or going from switch1. for every packet entering the controller, if the mac address is not in the flow table, the controller floods. This only occurs at first, before the table has a chance to cache the values. 
+  I used a simple dictionary to map dpid and ID's to packet sources, as well as to destinations. i use the ofp_flow_mod() and ofp_packet_out() methods from the pox openflow library as msg's. and then sent thim using connection.send(msg). If I wanted to flood all sources, I set the ofp_action_output port to of.OFPP_ALL, which is all the ports
+  psuedocode. 
+  def handle_packet(packet):
+    table[packet.ID, packet.source] = packet
+    mac_address = table.get(packet.ID,packet.destination)
+
+    if mac_address not in table:
+       flood all switches
+    else:
+       send packet to correct host

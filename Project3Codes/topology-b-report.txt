@@ -1,0 +1,11 @@
+topology-b 
+
+I was not sure which links where lvl1 and which where lvl3, but I assumed the host to edge connections where level 1 and the aggregation to core was level 3.
+
+it is possible to estimate the latency between switches for each of the links in topology-b, as we have defined the links to have a certain delay, and so each each packet carried over each link will be affected by this delay. This is why when a message is sent from h1 to h3, it must travel over the link from h1 to e1, and from e1 to a1, and from a1 to e2, and from e3 to h3. these links have delays of 10ms,20ms, 20ms, and 10ms respectively as i defined them this way in each links constructor. The latency between h1 and h3 will be 60ms with these delays.
+
+
+
+it is possible to estimate the throughput between switches for each of the links in topology-b, as we have defined the links to have a certain bandwidth, and so each each packet carried over each link will be affected by this max bandwidth. This is why when a message is sent from h1 to h3, it must travel over the link from h1 to e1, and from e1 to a1, and from a1 to e2, and from e3 to h3. these links have bw that are defined in their constructors, so for example, if we send a message over link1 in lvl1, we will experience a bandwidth of 100Mbit/s, but if the message goes up to lvl2, that link only has a bw of 40Mbit/s.
+
+
